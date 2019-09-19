@@ -1,2 +1,2 @@
 require('./User');
-require('./Movie');
+require('./Product');
