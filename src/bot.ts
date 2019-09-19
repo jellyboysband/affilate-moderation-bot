@@ -12,10 +12,10 @@ import User from './models/User';
 import logger from './util/logger';
 import about from './controllers/about';
 import startScene from './controllers/start';
-import searchScene from './controllers/search';
-import moviesScene from './controllers/movies';
-import settingsScene from './controllers/settings';
-import contactScene from './controllers/contact';
+// import searchScene from './controllers/search';
+// import moviesScene from './controllers/movies';
+// import settingsScene from './controllers/settings';
+// import contactScene from './controllers/contact';
 import adminScene from './controllers/admin';
 import { checkUnreleasedMovies } from './util/notifier';
 import asyncWrapper from './util/error-handler';
@@ -24,7 +24,7 @@ import { updateLanguage } from './util/language';
 import { updateUserTimestamp } from './middlewares/update-user-timestamp';
 import { getUserInfo } from './middlewares/user-info';
 import { isAdmin } from './middlewares/is-admin';
-import Telegram from './telegram';
+import { bot, telegram as Telegram } from './telegram';
 
 mongoose.connect(`mongodb://localhost:27017/${process.env.DATABASE_HOST}`, {
   useNewUrlParser: true,
@@ -40,17 +40,16 @@ mongoose.connection.on('error', err => {
 });
 
 mongoose.connection.on('open', () => {
-  const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
   const stage = new Stage([
     startScene,
-    searchScene,
-    moviesScene,
-    settingsScene,
-    contactScene,
+    // searchScene,
+    // moviesScene,
+    // settingsScene,
+    // contactScene,
     adminScene
   ]);
   const i18n = new TelegrafI18n({
-    defaultLanguage: 'en',
+    defaultLanguage: 'ru',
     directory: path.resolve(__dirname, 'locales'),
     useSession: true,
     allowMissing: false,
@@ -174,5 +173,5 @@ async function startProdMode(bot: Telegraf<ContextMessageUpdate>) {
   const webhookStatus = await Telegram.getWebhookInfo();
   console.log('Webhook status', webhookStatus);
 
-  checkUnreleasedMovies();
+  // checkUnreleasedMovies();
 }

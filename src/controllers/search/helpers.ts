@@ -125,7 +125,7 @@ export async function canAddMovie(ctx: ContextMessageUpdate) {
 
   if (movieRelease) {
     return ctx.i18n.t('scenes.search.reason_movie_released');
-  } else if (user.observableMovies.some(m => m._id === ctx.movie.id)) {
+  } else if (user.currentProduct === null) {
     return ctx.i18n.t('scenes.search.reason_already_observing');
   }
 

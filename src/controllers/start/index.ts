@@ -26,9 +26,9 @@ start.enter(async (ctx: ContextMessageUpdate) => {
       created: now,
       username: ctx.from.username,
       name: ctx.from.first_name + ' ' + ctx.from.last_name,
-      observableMovies: [],
+      currentProduct: null,
       lastActivity: now,
-      totalMovies: 0
+      totalProducts: 0
     });
 
     await newUser.save();

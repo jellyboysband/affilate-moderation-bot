@@ -35,7 +35,7 @@ export const accountSummaryAction = async (ctx: ContextMessageUpdate) => {
     ctx.i18n.t('scenes.settings.account_summary', {
       username: user.username,
       id: user._id,
-      totalMovies: user.totalMovies,
+      totalProducts: user.totalProducts,
       version: process.env.npm_package_version
     }),
     getAccountSummaryKeyboard(ctx)
