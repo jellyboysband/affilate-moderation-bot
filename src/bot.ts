@@ -2,33 +2,37 @@ require('dotenv').config();
 require('./models');
 import fs from 'fs';
 import path from 'path';
-import Telegraf, { ContextMessageUpdate, Extra, Markup } from 'telegraf';
-import TelegrafI18n, { match } from 'telegraf-i18n';
+// import Telegraf, { ContextMessageUpdate, Extra, Markup } from 'telegraf';
+import Telegraf, { ContextMessageUpdate } from 'telegraf';
+import TelegrafI18n from 'telegraf-i18n';
+// import TelegrafI18n, { match } from 'telegraf-i18n';
 import Stage from 'telegraf/stage';
 import session from 'telegraf/session';
 import mongoose from 'mongoose';
-import rp from 'request-promise';
+// import rp from 'request-promise';
 import User from './models/User';
 import logger from './util/logger';
-import about from './controllers/about';
+// import about from './controllers/about';
 import startScene from './controllers/start';
 // import searchScene from './controllers/search';
 // import moviesScene from './controllers/movies';
 // import settingsScene from './controllers/settings';
 // import contactScene from './controllers/contact';
-import adminScene from './controllers/admin';
-import { checkUnreleasedMovies } from './util/notifier';
+// import adminScene from './controllers/admin';
+// import { checkUnreleasedMovies } from './util/notifier';
 import asyncWrapper from './util/error-handler';
 import { getMainKeyboard } from './util/keyboards';
 import { updateLanguage } from './util/language';
-import { updateUserTimestamp } from './middlewares/update-user-timestamp';
+// import { updateUserTimestamp } from './middlewares/update-user-timestamp';
 import { getUserInfo } from './middlewares/user-info';
-import { isAdmin } from './middlewares/is-admin';
+// import { isAdmin } from './middlewares/is-admin';
 import { bot, telegram as Telegram } from './telegram';
+console.log('TCL: process.env.DATABASE_AUTH_URL', process.env.DATABASE_AUTH_URL);
 
-mongoose.connect(`mongodb://localhost:27017/${process.env.DATABASE_HOST}`, {
+mongoose.connect(process.env.DATABASE_AUTH_URL, {
   useNewUrlParser: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  useUnifiedTopology: true
 });
 mongoose.connection.on('error', err => {
   logger.error(
@@ -41,12 +45,12 @@ mongoose.connection.on('error', err => {
 
 mongoose.connection.on('open', () => {
   const stage = new Stage([
-    startScene,
+    startScene
     // searchScene,
     // moviesScene,
     // settingsScene,
     // contactScene,
-    adminScene
+    // adminScene
   ]);
   const i18n = new TelegrafI18n({
     defaultLanguage: 'ru',
@@ -68,64 +72,64 @@ mongoose.connection.on('open', () => {
     await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
   });
   bot.start(asyncWrapper(async (ctx: ContextMessageUpdate) => ctx.scene.enter('start')));
-  bot.hears(
-    match('keyboards.main_keyboard.search'),
-    updateUserTimestamp,
-    asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('search'))
-  );
-  bot.hears(
-    match('keyboards.main_keyboard.movies'),
-    updateUserTimestamp,
-    asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('movies'))
-  );
-  bot.hears(
-    match('keyboards.main_keyboard.settings'),
-    updateUserTimestamp,
-    asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('settings'))
-  );
-  bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
-  bot.hears(
-    match('keyboards.main_keyboard.contact'),
-    updateUserTimestamp,
-    asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('contact'))
-  );
-  bot.hears(
-    match('keyboards.back_keyboard.back'),
-    asyncWrapper(async (ctx: ContextMessageUpdate) => {
-      // If this method was triggered, it means that bot was updated when user was not in the main menu..
-      logger.debug(ctx, 'Return to the main menu with the back button');
-      const { mainKeyboard } = getMainKeyboard(ctx);
+  // bot.hears(
+  //   match('keyboards.main_keyboard.search'),
+  //   updateUserTimestamp,
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('search'))
+  // );
+  // bot.hears(
+  //   match('keyboards.main_keyboard.movies'),
+  //   updateUserTimestamp,
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('movies'))
+  // );
+  // bot.hears(
+  //   match('keyboards.main_keyboard.settings'),
+  //   updateUserTimestamp,
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('settings'))
+  // );
+  // bot.hears(match('keyboards.main_keyboard.about'), updateUserTimestamp, asyncWrapper(about));
+  // bot.hears(
+  //   match('keyboards.main_keyboard.contact'),
+  //   updateUserTimestamp,
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('contact'))
+  // );
+  // bot.hears(
+  //   match('keyboards.back_keyboard.back'),
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => {
+  //     // If this method was triggered, it means that bot was updated when user was not in the main menu..
+  //     logger.debug(ctx, 'Return to the main menu with the back button');
+  //     const { mainKeyboard } = getMainKeyboard(ctx);
 
-      await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
-    })
-  );
+  //     await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
+  //   })
+  // );
 
-  bot.hears(
-    match('keyboards.main_keyboard.support'),
-    asyncWrapper(async (ctx: ContextMessageUpdate) => {
-      logger.debug(ctx, 'Opened support options');
+  // bot.hears(
+  //   match('keyboards.main_keyboard.support'),
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => {
+  //     logger.debug(ctx, 'Opened support options');
 
-      const supportKeyboard = Extra.HTML().markup((m: Markup) =>
-        m.inlineKeyboard(
-          [
-            [m.urlButton(`Patreon`, process.env.PATREON_LINK, false)],
-            [m.urlButton(`Paypal`, process.env.PAYPAL_LINK, false)],
-            [m.urlButton(`Yandex.Money`, process.env.YANDEX_LINK, false)],
-            [m.urlButton(`WebMoney`, process.env.WEBMONEY_LINK, false)]
-          ],
-          {}
-        )
-      );
+  //     const supportKeyboard = Extra.HTML().markup((m: Markup) =>
+  //       m.inlineKeyboard(
+  //         [
+  //           [m.urlButton(`Patreon`, process.env.PATREON_LINK, false)],
+  //           [m.urlButton(`Paypal`, process.env.PAYPAL_LINK, false)],
+  //           [m.urlButton(`Yandex.Money`, process.env.YANDEX_LINK, false)],
+  //           [m.urlButton(`WebMoney`, process.env.WEBMONEY_LINK, false)]
+  //         ],
+  //         {}
+  //       )
+  //     );
 
-      await ctx.reply(ctx.i18n.t('other.support'), supportKeyboard);
-    })
-  );
+  //     await ctx.reply(ctx.i18n.t('other.support'), supportKeyboard);
+  //   })
+  // );
 
-  bot.hears(
-    /(.*admin)/,
-    isAdmin,
-    asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('admin'))
-  );
+  // bot.hears(
+  //   /(.*admin)/,
+  //   isAdmin,
+  //   asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('admin'))
+  // );
 
   bot.hears(/(.*?)/, async (ctx: ContextMessageUpdate) => {
     logger.debug(ctx, 'Default handler has fired');
@@ -140,7 +144,7 @@ mongoose.connection.on('open', () => {
     logger.error(undefined, 'Global error has happened, %O', error);
   });
 
-  setInterval(checkUnreleasedMovies, 86400000);
+  // setInterval(checkUnreleasedMovies, 86400000);
 
   process.env.NODE_ENV === 'production' ? startProdMode(bot) : startDevMode(bot);
 });
@@ -148,9 +152,10 @@ mongoose.connection.on('open', () => {
 function startDevMode(bot: Telegraf<ContextMessageUpdate>) {
   logger.debug(undefined, 'Starting a bot in development mode');
 
-  rp(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
-    bot.startPolling()
-  );
+  bot.startPolling();
+  // rp(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/deleteWebhook`).then(() =>
+  //   bot.startPolling()
+  // );
 }
 
 async function startProdMode(bot: Telegraf<ContextMessageUpdate>) {

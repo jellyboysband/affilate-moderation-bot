@@ -26,7 +26,7 @@ start.enter(async (ctx: ContextMessageUpdate) => {
       created: now,
       username: ctx.from.username,
       name: ctx.from.first_name + ' ' + ctx.from.last_name,
-      currentProduct: null,
+      currentProduct: undefined,
       lastActivity: now,
       totalProducts: 0
     });
